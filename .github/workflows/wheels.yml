@@ -159,3 +159,38 @@ jobs:
         with:
           name: sdist
           path: ./dist/*
+
+  testpypi-publish:
+    name: Upload release to TestPyPI
+    if: # TODO - add a release True/False? and on `main`?
+    needs: [build_wheels, build_sdist]
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/numpy
+    permissions:
+      id-token: write
+    steps:
+      # TODO: retrieve your distributions here
+
+    - name: Publish package distributions to PyPI
+      uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc  # v1.12.4
+      with:
+        print-hash: true
+
+  pypi-publish:
+    name: Upload release to PyPI
+    needs: [build_wheels, build_sdist]
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/numpy
+    permissions:
+      id-token: write
+    steps:
+      # TODO: retrieve your distributions here
+
+    - name: Publish package distributions to PyPI
+      uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc  # v1.12.4
+      with:
+        print-hash: true
