@@ -4,7 +4,6 @@ set -xe
 
 PROJECT_DIR="$1"
 
-python -m pip install threadpoolctl
 python -c "import numpy; numpy.show_config()"
 
 if [[ $RUNNER_OS == "Windows" ]]; then
@@ -40,9 +39,7 @@ if [[ $FREE_THREADED_BUILD == "True" ]]; then
 fi
 
 # Run full tests with -n=auto. This makes pytest-xdist distribute tests across
-# the available N CPU cores: 2 by default for Linux instances and 4 for macOS arm64
-# Also set a 30 minute timeout in case of test hangs and on success, print the
-# durations for the 10 slowests tests to help with debugging slow or hanging
-# tests
-python -c "import sys; import numpy; sys.exit(not numpy.test(label='full', extra_argv=['-n=auto', '--timeout=1800', '--durations=10']))"
+# the available N CPU cores. Also print the durations for the 10 slowest tests
+# to help with debugging slow or hanging tests
+python -c "import sys; import numpy; sys.exit(not numpy.test(label='full', extra_argv=['-n=auto', '--durations=10']))"
 python $PROJECT_DIR/tools/wheels/check_license.py
