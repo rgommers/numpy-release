@@ -1,22 +1,23 @@
 set -xe
 
 PROJECT_DIR="${1:-$PWD}"
+NUMPY_SRC_DIR="${1:-$PWD}/numpy-src"
 
 
 # remove any cruft from a previous run
 rm -rf build
 
 # Update license
-echo "" >> $PROJECT_DIR/LICENSE.txt
-echo "----" >> $PROJECT_DIR/LICENSE.txt
-echo "" >> $PROJECT_DIR/LICENSE.txt
-cat $PROJECT_DIR/LICENSES_bundled.txt >> $PROJECT_DIR/LICENSE.txt
+echo "" >> $NUMPY_SRC_DIR/LICENSE.txt
+echo "----" >> $NUMPY_SRC_DIR/LICENSE.txt
+echo "" >> $NUMPY_SRC_DIR/LICENSE.txt
+cat $NUMPY_SRC_DIR/LICENSES_bundled.txt >> $NUMPY_SRC_DIR/LICENSE.txt
 if [[ $RUNNER_OS == "Linux" ]] ; then
-    cat $PROJECT_DIR/tools/wheels/LICENSE_linux.txt >> $PROJECT_DIR/LICENSE.txt
+    cat $PROJECT_DIR/tools/wheels/LICENSE_linux.txt >> $NUMPY_SRC_DIR/LICENSE.txt
 elif [[ $RUNNER_OS == "macOS" ]]; then
-    cat $PROJECT_DIR/tools/wheels/LICENSE_osx.txt >> $PROJECT_DIR/LICENSE.txt
+    cat $PROJECT_DIR/tools/wheels/LICENSE_osx.txt >> $NUMPY_SRC_DIR/LICENSE.txt
 elif [[ $RUNNER_OS == "Windows" ]]; then
-    cat $PROJECT_DIR/tools/wheels/LICENSE_win32.txt >> $PROJECT_DIR/LICENSE.txt
+    cat $PROJECT_DIR/tools/wheels/LICENSE_win32.txt >> $NUMPY_SRC_DIR/LICENSE.txt
 fi
 
 if [[ $(python -c"import sys; print(sys.maxsize)") < $(python -c"import sys; print(2**33)") ]]; then
@@ -46,7 +47,7 @@ if [[ "$INSTALL_OPENBLAS" = "true" ]] ; then
     PKG_CONFIG_PATH=$PROJECT_DIR/.openblas
     rm -rf $PKG_CONFIG_PATH
     mkdir -p $PKG_CONFIG_PATH
-    python -m pip install -r requirements/ci_requirements.txt
+    python -m pip install -r $PROJECT_DIR/requirements/openblas_requirements.txt
     python -c "import scipy_${OPENBLAS}; print(scipy_${OPENBLAS}.get_pkg_config())" > $PKG_CONFIG_PATH/scipy-openblas.pc
     # Copy the shared objects to a path under $PKG_CONFIG_PATH, the build
     # will point $LD_LIBRARY_PATH there and then auditwheel/delocate-wheel will
