@@ -25,7 +25,7 @@ elif [ -z $INSTALL_OPENBLAS ]; then
     export INSTALL_OPENBLAS=true
 fi
 
-# Install OpenBLAS from scipy-openblas64
+# Install OpenBLAS from scipy-openblas32|64
 if [[ "$INSTALL_OPENBLAS" = "true" ]] ; then
     # By default, use scipy-openblas64
     # On 32-bit platforms and on win-arm64, use scipy-openblas32
