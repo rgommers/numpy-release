@@ -36,12 +36,16 @@ if [[ "$INSTALL_OPENBLAS" = "true" ]] ; then
     elif [[ $RUNNER_ARCH == "ARM64" && $RUNNER_OS == "Windows" ]] ; then
         OPENBLAS=openblas32
     fi
-    PKG_CONFIG_PATH=$PROJECT_DIR/.openblas
-    echo PKG_CONFIG_PATH is $PKG_CONFIG_PATH, OPENBLAS is ${OPENBLAS}
-    rm -rf $PKG_CONFIG_PATH
-    mkdir -p $PKG_CONFIG_PATH
+
+    # The PKG_CONFIG_PATH environment variable will be pointed to this path in
+    # cibuildwheel.toml and .github/workflows/wheels.yml. Note that
+    # `pkgconf_path` here is only a bash variable local to this file.
+    pkgconf_path=$PROJECT_DIR/.openblas
+    echo pkgconf_path is $pkgconf_path, OPENBLAS is ${OPENBLAS}
+    rm -rf $pkgconf_path
+    mkdir -p $pkgconf_path
     python -m pip install -r $PROJECT_DIR/requirements/openblas_requirements.txt
-    python -c "import scipy_${OPENBLAS}; print(scipy_${OPENBLAS}.get_pkg_config())" > $PKG_CONFIG_PATH/scipy-openblas.pc
+    python -c "import scipy_${OPENBLAS}; print(scipy_${OPENBLAS}.get_pkg_config())" > $pkgconf_path/scipy-openblas.pc
 
     # Copy scipy-openblas DLL's to a fixed location so we can point delvewheel
     # at it in `repair_windows.sh` (needed only on Windows because of the lack
@@ -50,7 +54,7 @@ if [[ "$INSTALL_OPENBLAS" = "true" ]] ; then
         python <<EOF
 import os, scipy_${OPENBLAS}, shutil
 srcdir = os.path.join(os.path.dirname(scipy_${OPENBLAS}.__file__), "lib")
-shutil.copytree(srcdir, os.path.join("$PKG_CONFIG_PATH", "lib"))
+shutil.copytree(srcdir, os.path.join("$pkgconf_path", "lib"))
 EOF
     fi
 fi
