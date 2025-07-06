@@ -1,9 +1,9 @@
-Cython
+Cython==3.1.2
 setuptools==65.5.1 ; python_version < '3.12'
-setuptools         ; python_version >= '3.12'
+setuptools==80.9.0 ; python_version >= '3.12'
 hypothesis==6.104.1
 pytest==7.4.0
-meson
-ninja; sys_platform != "emscripten"
-pytest-xdist
-threadpoolctl
+meson==1.8.2
+ninja==1.11.1.4; sys_platform != "emscripten"
+pytest-xdist==3.8.0
+threadpoolctl==3.6.0
