@@ -25,7 +25,7 @@ elif [ -z $INSTALL_OPENBLAS ]; then
     export INSTALL_OPENBLAS=true
 fi
 
-# Install OpenBLAS from scipy-openblas64
+# Install OpenBLAS from scipy-openblas32|64
 if [[ "$INSTALL_OPENBLAS" = "true" ]] ; then
     # By default, use scipy-openblas64
     # On 32-bit platforms and on win-arm64, use scipy-openblas32
@@ -42,10 +42,20 @@ if [[ "$INSTALL_OPENBLAS" = "true" ]] ; then
     mkdir -p $PKG_CONFIG_PATH
     python -m pip install -r $PROJECT_DIR/requirements/openblas_requirements.txt
     python -c "import scipy_${OPENBLAS}; print(scipy_${OPENBLAS}.get_pkg_config())" > $PKG_CONFIG_PATH/scipy-openblas.pc
+
+    # Copy scipy-openblas DLL's to a fixed location so we can point delvewheel
+    # at it in `repair_windows.sh` (needed only on Windows because of the lack
+    # of RPATH support).
+    if [[ $RUNNER_OS == "Windows" ]]; then
+        python <<EOF
+import os, scipy_${OPENBLAS}, shutil
+srcdir = os.path.join(os.path.dirname(scipy_${OPENBLAS}.__file__), "lib")
+shutil.copytree(srcdir, os.path.join("$PKG_CONFIG_PATH", "lib"))
+EOF
+    fi
 fi
 
-# cibuildwheel doesn't install delvewheel by default (it does install
-# auditwheel on Linux and delocate on macOS)
+# cibuildwheel doesn't install delvewheel by default
 if [[ $RUNNER_OS == "Windows" ]]; then
-    python -m pip install delvewheel
+    python -m pip install -r $PROJECT_DIR/requirements/delvewheel_requirements.txt
 fi

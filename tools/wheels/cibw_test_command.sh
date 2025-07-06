@@ -6,11 +6,6 @@ PROJECT_DIR="$1"
 
 python -c "import numpy; numpy.show_config()"
 
-if [[ $RUNNER_OS == "Windows" ]]; then
-    # see gh-20391
-    PY_DIR=$(python -c "import sys; print(sys.prefix)")
-    mkdir $PY_DIR/libs
-fi
 if [[ $RUNNER_OS == "macOS"  && $RUNNER_ARCH == "X64" ]]; then
   # Not clear why this is needed but it seems on x86_64 this is not the default
   # and without it f2py tests fail
@@ -19,7 +14,6 @@ if [[ $RUNNER_OS == "macOS"  && $RUNNER_ARCH == "X64" ]]; then
   # in f2py tests
   export LIBRARY_PATH="$LIBRARY_PATH:/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib"
 elif [[ $RUNNER_OS == "Windows" && $IS_32_BIT == true ]] ; then
-  echo "Skip OpenBLAS version check for 32-bit Windows, no OpenBLAS used"
   # Avoid this in GHA: "ERROR: Found GNU link.exe instead of MSVC link.exe"
   rm /c/Program\ Files/Git/usr/bin/link.EXE
 fi
