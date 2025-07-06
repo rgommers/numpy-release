@@ -112,22 +112,16 @@ jobs:
           echo "FC=gfortran-13" >> "$GITHUB_ENV"
           echo "F77=gfortran-13" >> "$GITHUB_ENV"
           echo "F90=gfortran-13" >> "$GITHUB_ENV"
+
           if [[ ${{ matrix.buildplat[2] }} == 'accelerate' ]]; then
-            # macosx_arm64 and macosx_x86_64 with accelerate
-            # only target Sonoma onwards
-            CIBW="MACOSX_DEPLOYMENT_TARGET=14.0 INSTALL_OPENBLAS=false RUNNER_OS=macOS"
-            echo "CIBW_ENVIRONMENT_MACOS=$CIBW" >> "$GITHUB_ENV"
+            # Builds with Accelerate only target macOS>=14.0
+            echo "CIBW_ENVIRONMENT_MACOS=MACOSX_DEPLOYMENT_TARGET=14.0 INSTALL_OPENBLAS=false" >> "$GITHUB_ENV"
 
             # the macos-13 image that's used for building the x86_64 wheel can't test
             # a wheel with deployment target >= 14 without further work
             echo "CIBW_TEST_SKIP=*-macosx_x86_64" >> "$GITHUB_ENV"
           else
-            # macosx_x86_64 with OpenBLAS
-            # if INSTALL_OPENBLAS isn't specified then scipy-openblas is automatically installed
-            CIBW="RUNNER_OS=macOS"
-            PKG_CONFIG_PATH="$PWD/.openblas"
-            DYLD="$DYLD_LIBRARY_PATH:/$PWD/.openblas/lib"
-            echo "CIBW_ENVIRONMENT_MACOS=$CIBW PKG_CONFIG_PATH=$PKG_CONFIG_PATH DYLD_LIBRARY_PATH=$DYLD" >> "$GITHUB_ENV"
+            echo "CIBW_ENVIRONMENT_MACOS=PKG_CONFIG_PATH=$PWD/.openblas" >> "$GITHUB_ENV"
           fi
 
       # Used to run cibuildwheel
