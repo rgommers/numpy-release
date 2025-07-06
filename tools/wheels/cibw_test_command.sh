@@ -6,14 +6,7 @@ PROJECT_DIR="$1"
 
 python -c "import numpy; numpy.show_config()"
 
-if [[ $RUNNER_OS == "macOS"  && $RUNNER_ARCH == "X64" ]]; then
-  # Not clear why this is needed but it seems on x86_64 this is not the default
-  # and without it f2py tests fail
-  export DYLD_LIBRARY_PATH="$DYLD_LIBRARY_PATH:/usr/local/lib"
-  # Needed so gfortran (not clang) can find system libraries like libm (-lm)
-  # in f2py tests
-  export LIBRARY_PATH="$LIBRARY_PATH:/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib"
-elif [[ $RUNNER_OS == "Windows" && $IS_32_BIT == true ]] ; then
+if [[ $RUNNER_OS == "Windows" && $IS_32_BIT == true ]] ; then
   # Avoid this in GHA: "ERROR: Found GNU link.exe instead of MSVC link.exe"
   rm /c/Program\ Files/Git/usr/bin/link.EXE
 fi
