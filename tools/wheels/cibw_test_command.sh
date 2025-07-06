@@ -7,7 +7,7 @@ PROJECT_DIR="$1"
 python -c "import numpy; numpy.show_config()"
 
 if [[ $RUNNER_OS == "Windows" ]]; then
-    # GH 20391
+    # see gh-20391
     PY_DIR=$(python -c "import sys; print(sys.prefix)")
     mkdir $PY_DIR/libs
 fi
@@ -23,8 +23,8 @@ elif [[ $RUNNER_OS == "Windows" && $IS_32_BIT == true ]] ; then
   # Avoid this in GHA: "ERROR: Found GNU link.exe instead of MSVC link.exe"
   rm /c/Program\ Files/Git/usr/bin/link.EXE
 fi
-# Set available memory value to avoid OOM problems on aarch64.
-# See gh-22418.
+
+# Set available memory value to avoid OOM problems on aarch64 (see gh-22418)
 export NPY_AVAILABLE_MEM="4 GB"
 
 FREE_THREADED_BUILD="$(python -c"import sysconfig; print(bool(sysconfig.get_config_var('Py_GIL_DISABLED')))")"
@@ -42,4 +42,6 @@ fi
 # the available N CPU cores. Also print the durations for the 10 slowest tests
 # to help with debugging slow or hanging tests
 python -c "import sys; import numpy; sys.exit(not numpy.test(label='full', extra_argv=['-n=auto', '--durations=10']))"
+
+# Check license file content
 python $PROJECT_DIR/tools/wheels/check_license.py
