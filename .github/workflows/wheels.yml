@@ -1,5 +1,11 @@
 name: Publish sdist and wheels
 
+env:
+  # A tag or branch name or a commit hash for the numpy/numpy repo, for which
+  # to build wheels. This is normally set to `main` in the main branch of this
+  # repo, and to a tag name (e.g., `v2.3.2`) on a release branch.
+  SOURCE_REF_TO_BUILD: main
+
 on:
   schedule:
     #        ┌───────────── minute (0 - 59)
@@ -86,6 +92,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           repository: numpy/numpy
+          ref: ${{ env.SOURCE_REF_TO_BUILD }}
           path: numpy-src
           submodules: true
           persist-credentials: false
