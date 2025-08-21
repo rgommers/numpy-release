@@ -49,19 +49,19 @@ jobs:
         # https://github.com/github/feedback/discussions/7835#discussioncomment-1769026
         buildplat:
           - [ubuntu-22.04, manylinux_x86_64, ""]
-          - [ubuntu-22.04, musllinux_x86_64, ""]
-          - [ubuntu-22.04-arm, manylinux_aarch64, ""]
-          - [ubuntu-22.04-arm, musllinux_aarch64, ""]
-          - [macos-13, macosx_x86_64, openblas]
-
-          # targeting macos >= 14. Could probably build on macos-14, but it would be a cross-compile
-          - [macos-13, macosx_x86_64, accelerate]
-          - [macos-14, macosx_arm64, openblas]
-          - [macos-14, macosx_arm64, accelerate]
-          - [windows-2022, win_amd64, ""]
-          - [windows-2022, win32, ""]
-          - [windows-11-arm, win_arm64, ""]
-        python: ["cp311", "cp312", "cp313", "cp313t", "cp314", "cp314t", "pp311"]
+#          - [ubuntu-22.04, musllinux_x86_64, ""]
+#          - [ubuntu-22.04-arm, manylinux_aarch64, ""]
+#          - [ubuntu-22.04-arm, musllinux_aarch64, ""]
+#          - [macos-13, macosx_x86_64, openblas]
+#
+#          # targeting macos >= 14. Could probably build on macos-14, but it would be a cross-compile
+#          - [macos-13, macosx_x86_64, accelerate]
+#          - [macos-14, macosx_arm64, openblas]
+#          - [macos-14, macosx_arm64, accelerate]
+#          - [windows-2022, win_amd64, ""]
+#          - [windows-2022, win32, ""]
+#          - [windows-11-arm, win_arm64, ""]
+        python: ["cp311"]#, "cp312", "cp313", "cp313t", "cp314", "cp314t", "pp311"]
         exclude:
           # Don't build PyPy 32-bit windows
           - buildplat: [windows-2022, win32, ""]
@@ -78,7 +78,11 @@ jobs:
             python: "cp313t"
           - buildplat: [ macos13, macosx_x86_64, openblas ]
             python: "cp314t"
-
+        include:
+          - buildplat: [ ubuntu-22.04, pyodide_wasm32, "" ]
+            python: "cp312"
+          - buildplat: [ ubuntu-22.04, pyodide_wasm32, "" ]
+            python: "cp313"
     env:
       IS_32_BIT: ${{ matrix.buildplat[1] == 'win32' }}  # used in a cibw_*.sh script
 
@@ -140,16 +144,33 @@ jobs:
           fi
 
       # Used to run cibuildwheel
-      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
-        with:
-          python-version: "3.13"
+#      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+#        with:
+#          python-version: "3.14"
+#          allow-prereleases: true
 
-      - name: Build wheel
+      - name: Pyodide setup
+        if: ${{ matrix.buildplat[1] == 'pyodide_wasm32' }}
+        run: |
+          echo "CIBW_PLATFORM=pyodide" >> "$GITHUB_ENV"
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v3.1.4
         env:
           CIBW_BUILD: ${{ matrix.python }}-${{ matrix.buildplat[1] }}
-        run: |
-          python -m pip install cibuildwheel==3.1.1
-          python -m cibuildwheel numpy-src --config-file cibuildwheel.toml --output-dir ./dist
+          SRC: ${{ github.workspace }}/numpy-src
+        with:
+           package-dir: numpy-src
+           output-dir: dist
+           config-file: cibuildwheel.toml
+
+#      - name: Build wheel
+#        env:
+#          CIBW_BUILD: ${{ matrix.python }}-${{ matrix.buildplat[1] }}
+#          SRC: ${{ github.workspace }}/numpy-src
+#        run: |
+#          python -m pip install cibuildwheel==3.1.4
+#          python -m cibuildwheel numpy-src --config-file cibuildwheel.toml --output-dir ./dist
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
