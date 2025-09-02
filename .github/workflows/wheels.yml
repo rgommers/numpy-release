@@ -80,8 +80,6 @@ jobs:
             python: "cp314t"
         include:
           - buildplat: [ ubuntu-22.04, pyodide_wasm32, "" ]
-            python: "cp312"
-          - buildplat: [ ubuntu-22.04, pyodide_wasm32, "" ]
             python: "cp313"
     env:
       IS_32_BIT: ${{ matrix.buildplat[1] == 'win32' }}  # used in a cibw_*.sh script
@@ -238,6 +236,13 @@ jobs:
         with:
           path: dist
 
+      - name: Remove wasm wheels
+        run: |
+          cd dist
+          ls -al
+          rm -r *wasm*
+          ls -al
+
       - name: Publish
         uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc # v1.12.4
         with:
@@ -291,6 +296,13 @@ jobs:
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
           path: dist
+
+      - name: Remove wasm wheels
+        run: |
+          cd dist
+          ls -al
+          rm -r *wasm*
+          ls -al
 
       - name: Publish
         uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc # v1.12.4
