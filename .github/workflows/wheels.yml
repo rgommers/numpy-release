@@ -40,6 +40,7 @@ permissions:
 jobs:
   build_wheels:
     name: Build wheel ${{ matrix.python }}-${{ matrix.buildplat[1] }}-${{ matrix.buildplat[2] }}
+    if: false
     runs-on: ${{ matrix.buildplat[0] }}
     strategy:
       # Ensure that a wheel builder finishes even if another fails
@@ -257,7 +258,7 @@ jobs:
     name: Ensure commit is tag before upload to PyPi
 
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'pypi'
-    needs: [build_wheels, build_sdist]
+    needs: [build_sdist]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout numpy
